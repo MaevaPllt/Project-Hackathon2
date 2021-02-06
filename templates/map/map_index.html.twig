@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+{% form_theme formComment 'bootstrap_4_layout.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+{% endblock %}
+    {% block navbar %}
+        {% include 'include/_navbar.html.twig' %}
+    {% endblock %}
+{% block body %}
+
+        <div id="position"></div>
+        <div id="map" class="map"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <script> let map = L.map('map').setView([49.157376, 0.47716], 13);
+
+        function initMap() {
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                attribution: 'données © <a href="//osm.org/copyright">OpenStreetMap</a>/ODbL - rendu <a href="//openstreetmap.fr">OSM France</a>',
+                minZoom: 5,
+                maxZoom: 18
+            }).addTo(map);
+        }
+
+        window.onload = function () {
+            initMap();
+        };
+    </script>
+
+    <script>
+        function geolocation(position) {
+            let userIcon = L.icon({
+                iconUrl: '{{ asset('build/images/marker/geolocation.png') }}',
+                //shadowUrl: '{{ asset('build/images/marker/geolocation.png') }}',
+                iconSize: [41, 41],
+                //shadowSize:   [50, 64],
+                iconAnchor: [20, 41],
+                //shadowAnchor: [32, 64],
+                popupAnchor: [0, -40]
+            });
+            let userGeolocation = L.marker([position.coords.latitude, position.coords.longitude], {icon: userIcon})
+                .addTo(map);
+            userGeolocation.bindPopup("<p class=\"city-name text-center\">Vous êtes ici</p>");
+        }
+
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(geolocation);
+            map.locate({setView: false, watch: true, maxZoom: 16});
+        }
+
+        let farmerIcon = L.icon({
+            iconUrl: '{{ asset('build/images/marker/farmer.png') }}',
+            //shadowUrl: '{{ asset('build/images/marker/farmer.png') }}',
+            iconSize: [41, 41],
+            //shadowSize:   [50, 64],
+            iconAnchor: [20, 41],
+            //shadowAnchor: [32, 64],
+            popupAnchor: [0, -40]
+        });
+
+        let barnIcon = L.icon({
+            iconUrl: '{{ asset('build/images/marker/barn.png') }}',
+            //shadowUrl: '{{ asset('build/images/marker/barn.png') }}',
+            iconSize: [41, 41],
+            //shadowSize:   [50, 64],
+            iconAnchor: [20, 41],
+            //shadowAnchor: [32, 64],
+            popupAnchor: [0, -40]
+        });
+
+        let coordinates = [];
+        let categories = [];
+        let category = '';
+        let cityFarmers = [];
+        let farmerPerCity = 0;
+        let categoryList = '';
+        let cityName = '';
+        let farmSize = 0;
+        {% for farmer in farmers %}
+        cityFarmers = [];
+        categories = [];
+        categoryList = '';
+        farmerPerCity = 0;
+        farmSize = 0;
+        cityName = '';
+        coordinates = [{{ farmer.city.latitude }}, {{ farmer.city.longitude }}];
+        if (typeof {{ farmer.city.slug }} == 'undefined') {
+            let {{ farmer.city.slug }} = L.marker(coordinates, {icon: farmerIcon})
+                .addTo(map);
+            map.setView([46.3630104, 2.9846608], 6);
+
+            {% for city in cities %}
+                {% if city.slug == farmer.city.slug %}
+            cityName = "{{ city.city|title }}";
+                    {% for farmer in city.farmers %}
+                        farmerPerCity++
+                        farmSize += {{ farmer.farmSize }};
+                        {% for transaction in farmer.transactions %}
+                            if (categories.indexOf('{{ transaction.product.category.name|title }}') === -1)
+                                categories.push("{{ transaction.product.category.name|title }}");
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+
+            category = categories.join(', ');
+
+            if (category !== '') {
+                categoryList = "<img class=\"mr-1\" src=\"{{ asset('build/images/agronomy.png') }}\">" + category;
+            }
+
+            {{ farmer.city.slug }}.bindPopup(
+                "<p class=\"city-name text-center\">" + cityName + "</p>" +
+                "<p><img class=\"text-light mr-1\" src=\"{{ asset('build/images/farmer.png') }}\"> " + farmerPerCity + "</p>" +
+                "<p><img class=\"mr-1\" src=\"{{ asset('build/images/farm.png') }}\"> " + farmSize/farmerPerCity + " ha</p>" +
+                "<p>" + categoryList + "</p>"
+            );
+        }
+        {% endfor %}
+
+        {% for buyer in buyers %}
+        coordinates = [{{ buyer.city.latitude }}, {{ buyer.city.longitude }}];
+
+        let buyer{{ buyer.id }} = L.marker(coordinates, {icon: barnIcon})
+            .addTo(map);
+
+        buyer{{ buyer.id }}.bindPopup(
+            "<p class=\"city-name text-center\">" + "{{ buyer.city.city|title }}" + "</p>" +
+            "<p><img class=\"mr-1\" src=\"{{ asset('build/images/barn.png') }}\"> " + "{{ buyer.type }}" + "</p>"
+        );
+        {% endfor %}
+    </script>
+    <script>
+        const Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        const OpenStreetMap_France = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '&copy; Openstreetmap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        const Stadia_Outdoors = L.tileLayer('https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        });
+
+        const Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        });
+
+        let position1 = L.marker([47.878264, 2.9258559]);
+
+
+
+
+        let basemaps = {
+            "Standard": OpenStreetMap_France,
+            "Stadia": Stadia_Outdoors,
+            "Sombre": Stadia_AlidadeSmoothDark,
+            "Satellite": Esri_WorldImagery,
+
+        };
+
+        let overlays = {
+            // "Layer1": position1,
+
+        }
+
+        L.control.layers(basemaps,overlays,{collapsed:true}).addTo(map);
+
+        //position1.on("add",function(){
+        //    position2.addTo(map);
+        //});
+    </script>
+{% endblock %}

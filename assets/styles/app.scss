@@ -1,0 +1,279 @@
+@import 'variables.scss';
+$primary: #5a9449;
+@import "~bootstrap/scss/bootstrap";
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@300;400&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+a,
+label,
+input,
+input > value,
+.btn {
+  font-family: $header-font-family;
+}
+
+body {
+  background-color: #d9d9d9;
+}
+
+.leaflet-popup {
+  width: 220px;
+  .leaflet-popup-content-wrapper {
+    background-color: #5a9449;
+    color: #e8e8e8;
+    width: 80%;
+
+    .city-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+  }
+  .leaflet-popup-tip-container {
+    .leaflet-popup-tip {
+      background-color: #5a9449;
+    }
+  }
+}
+
+.map {
+  width: 99vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+.stars-rate {
+  width: 25px;
+  height: 25px;
+}
+
+.comment {
+  border: 5px solid $primary;
+  border-radius: 5px;
+}
+
+.wild-farmers{
+  border-radius: 10px;
+  border: 5px inset $light;
+  box-shadow: 5px 5px 1px $dark-grey;
+  transition: all 1s 0s ease;
+  //filter: opacity(20%);
+  filter : brightness(10%);
+}
+
+.wild-farmers:hover {
+  transform: scale(1.05) rotate(360deg);
+  //filter: opacity(100%);
+  filter : brightness(100%);
+}
+
+
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: $primary;
+  overflow-x: hidden;
+  padding-top: 60px;
+  transition: 0.5s;
+}
+
+
+.sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+}
+
+
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: white;
+  color: #5a9449;
+  padding: 10px 15px;
+  border: none;
+}
+
+.openbtn:hover {
+  background-color: #5a9449;
+  color: white;
+}
+
+
+#main {
+  transition: margin-left .5s;
+}
+
+.form-login,
+.form-signin {
+  border : 5px solid darken($primary, 10%);
+  border-radius: 10px;
+  background-color: $primary;
+}
+
+.form-title {
+  z-index: 10;
+  text-shadow: 2px 2px 2px rgba(127, 123, 121, 0),
+  2px 2px 2px #e8e8e8;
+}
+
+.div-title {
+  position: relative;
+}
+
+.img-tractor-left {
+  position: absolute;
+  top : 5px;
+  left: 5px;
+  z-index: 5;
+  height: 80px;
+  width: 80px;
+  animation: driving-left 7s ease-in 0s infinite;
+}
+
+.img-tractor-right {
+  position: absolute;
+  top : 5px;
+  right: 5px;
+  z-index: 5;
+  height: 80px;
+  width: 80px;
+  animation: driving-right 7s ease-in 0s infinite;
+}
+
+@keyframes driving-left {
+  0% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  10% {
+    transform: rotate(-50deg) translate(0, -13px);
+  }
+  25% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  35% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  50% {
+    transform: rotate(-50deg) translate(0, -13px);
+  }
+  75% {
+    transform: translate(150px, 0px);
+  }
+  100% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+}
+
+@keyframes driving-right {
+  0% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  10% {
+    transform: rotate(50deg) translate(0, -13px);
+  }
+  25% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  35% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+  50% {
+    transform: rotate(50deg) translate(0, -13px);
+  }
+  75% {
+    transform: translate(-150px, 0px);
+  }
+  100% {
+    transform: rotate(0deg) translate(0, 0px);
+  }
+}
+
+.btn-form-city {
+   width : 95%;
+   height: 30px;
+   margin-top: 10px;
+ }
+.img-form-city {
+  height: 20px;
+}
+
+.title-background {
+  position: relative;
+  h1, h2 {
+    position: absolute;
+    text-shadow: 2px 2px 2px $light;
+  }
+  .green-paint {
+    width: 350px;
+    height: 75px;
+  }
+  .grey-paint {
+    width: 300px;
+    height: 75px;
+  }
+}
+
+.wilders,
+.pré {
+  text-shadow: 1px 5px 2px $dark;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 20px;}
+  .sidebar a {font-size: 18px;}
+}
+
+#filter_cities {
+    label {
+      padding-right: 7px;
+    }
+}
+
+#filter_cities div{
+  display: flex;
+  align-items: center;
+    label {
+      margin: 0;
+    }
+}
+#filter_cities_Ville {
+  width: 180px;
+}
+
+.card-body {
+  padding : 0;
+}
